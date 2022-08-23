@@ -1,7 +1,10 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace ScrumBoardAPI.Data;
 
 public class AUser
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public string Id { get; set; } = null!;
 
     public string Name { get; set; } = null!;

@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ScrumBoardAPI.Data;
+using ScrumBoardAPI.Models.User;
 
 namespace ScrumBoardAPI.Controllers
 {
@@ -14,28 +16,29 @@ namespace ScrumBoardAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly ScrumBoardDbContext _context;
+        private readonly IMapper _mapper;
 
-        public UserController(ScrumBoardDbContext context)
+        public UserController(ScrumBoardDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/User
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AUser>>> GetAUser()
+        public async Task<ActionResult<IEnumerable<GetUserDto>>> GetAUser()
         {
             if (_context.AUser == null)
             {
                 return NotFound();
             }
-            return await _context.AUser
-                .Include(u => u.Workspaces)
-                .ToListAsync();
+            var users = await _context.AUser.ToListAsync();
+            return _mapper.Map<List<GetUserDto>>(users);
         }
 
         // GET: api/User/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<AUser>> GetAUser(string id)
+        public async Task<ActionResult<GetUserDto>> GetAUser(string id)
         {
             if (_context.AUser == null)
             {
@@ -48,7 +51,7 @@ namespace ScrumBoardAPI.Controllers
                 return NotFound();
             }
 
-            return aUser;
+            return _mapper.Map<GetUserDto>(aUser);
         }
 
         // PUT: api/User/5
@@ -85,12 +88,15 @@ namespace ScrumBoardAPI.Controllers
         // POST: api/User
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<AUser>> PostAUser(AUser aUser)
+        public async Task<ActionResult<AUser>> PostAUser(CreateUserDto userDto)
         {
             if (_context.AUser == null)
             {
                 return Problem("Entity set 'ScrumBoardDbContext.AUser'  is null.");
             }
+
+            var aUser = _mapper.Map<AUser>(userDto);
+
             _context.AUser.Add(aUser);
             try
             {

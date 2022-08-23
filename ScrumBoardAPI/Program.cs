@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using ScrumBoardAPI.Configuration;
 using ScrumBoardAPI.Data;
 using Serilog;
 
@@ -33,6 +34,8 @@ builder.Services.AddCors(options => {
 builder.Host.UseSerilog((hostingContext, loggerConfiguration) => {
     loggerConfiguration.WriteTo.Console().ReadFrom.Configuration(hostingContext.Configuration);
 });
+
+builder.Services.AddAutoMapper(typeof(MapperConfig));
 
 var app = builder.Build();
 
