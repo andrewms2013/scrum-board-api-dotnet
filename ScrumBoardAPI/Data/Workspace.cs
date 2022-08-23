@@ -6,7 +6,5 @@ public class Workspace
 
     public string Name { get; set; } = null!;
 
-    public IList<AUser> Users { get; set; } = null!;
-
-    public IList<WorkspaceUser> WorkspaceUsers { get; set; } = null!;
+    public IList<AUser>? Users { get; set; } = null!;
 }

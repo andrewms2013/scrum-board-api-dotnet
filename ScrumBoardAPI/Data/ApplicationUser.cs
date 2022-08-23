@@ -10,12 +10,10 @@ public class AUser
 
     public string PasswordHash { get; set; } = null!;
 
-    public IList<Workspace> Workspaces { get; set; } = null!;
+    public IList<Workspace>? Workspaces { get; set; } = null!;
 
-    public IList<WorkspaceUser> WorkspaceUsers { get; set; } = null!;
+    public List<Task>? CreatedTasks { get; set; } = null!;
 
-    public List<Task> CreatedTasks { get; set; } = null!;
-
-    public List<Task> AssignedTasks { get; set; } = null!;
+    public List<Task>? AssignedTasks { get; set; } = null!;
 
 }

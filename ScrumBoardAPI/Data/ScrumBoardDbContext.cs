@@ -13,33 +13,25 @@ public class ScrumBoardDbContext: DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<AUser>().HasMany(t => t.AssignedTasks)
-            .WithOne(g => g.Assignee)
-            .HasForeignKey(g => g.AssigneeId)
+        modelBuilder.Entity<AUser>()
+            .HasMany(p => p.Workspaces)
+            .WithMany(p => p.Users)
+            .UsingEntity(j => j.HasData(new { WorkspacesId = 1, UsersId = "1" }));
+
+        modelBuilder.Entity<AUser>().HasMany(t => t.AssignedTasks!)
+            .WithOne(g => g.Assignee!)
+            .HasForeignKey(g => g.AssigneeId!)
             .OnDelete(DeleteBehavior.SetNull);
 
-        modelBuilder.Entity<AUser>().HasMany(t => t.CreatedTasks)
-            .WithOne(g => g.Creator)
-            .HasForeignKey(g => g.CreatorId)
+        modelBuilder.Entity<AUser>().HasMany(t => t.CreatedTasks!)
+            .WithOne(g => g.Creator!)
+            .HasForeignKey(g => g.CreatorId!)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<AUser>()
             .HasMany(p => p.Workspaces)
             .WithMany(p => p.Users)
-            .UsingEntity<WorkspaceUser>(
-                j => j
-                    .HasOne(pt => pt.Workspace)
-                    .WithMany(t => t.WorkspaceUsers)
-                    .HasForeignKey(pt => pt.WorkspaceId),
-                j => j
-                    .HasOne(pt => pt.ApplicationUser)
-                    .WithMany(p => p.WorkspaceUsers)
-                    .HasForeignKey(pt => pt.UserId),
-                j =>
-                {
-                    j.HasKey(t => new { t.WorkspaceId, t.UserId });
-                });
-
+            .UsingEntity(j => j.ToTable("WorkspaceUser"));
 
         modelBuilder.Entity<AUser>().HasData(
             new AUser
@@ -68,19 +60,6 @@ public class ScrumBoardDbContext: DbContext
             {
                 Id = 2,
                 Name = "Workspace 2"
-            }
-        );
-
-        modelBuilder.Entity<WorkspaceUser>().HasData(
-            new WorkspaceUser
-            {
-                WorkspaceId = 1,
-                UserId = "1"
-            },
-            new WorkspaceUser
-            {
-                WorkspaceId = 1,
-                UserId = "2"
             }
         );
 
