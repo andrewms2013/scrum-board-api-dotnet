@@ -45,7 +45,7 @@ builder.Host.UseSerilog((hostingContext, loggerConfiguration) => {
 builder.Services.AddAutoMapper(typeof(MapperConfig));
 
 builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
-builder.Services.AddScoped(typeof(IUserRepostory), typeof(UserRepository));
+builder.Services.AddScoped(typeof(IWorkspaceRepository), typeof(WorkspaceRepository));
 
 var app = builder.Build();
 

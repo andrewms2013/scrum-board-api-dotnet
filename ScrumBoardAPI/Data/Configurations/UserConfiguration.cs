@@ -20,10 +20,6 @@ public class UserCofiguration : IEntityTypeConfiguration<AUser>
 
         // builder.HasMany(p => p.Workspaces)
         //     .WithMany(p => p.Users)
-        //     .UsingEntity(j => j.ToTable("WorkspaceUser"));
-
-        // builder.HasMany(p => p.Workspaces)
-        //     .WithMany(p => p.Users)
         //     .UsingEntity(j => j.HasData(new { WorkspacesId = 1, UsersId = "1" }));
     }
 }

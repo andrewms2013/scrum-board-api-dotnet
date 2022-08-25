@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using ScrumBoardAPI.Contracts;
 using ScrumBoardAPI.Data;
