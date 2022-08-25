@@ -1,22 +1,12 @@
-using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace ScrumBoardAPI.Data;
 
-public class AUser
+public class AUser : IdentityUser
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public string Id { get; set; } = null!;
-
-    public string Name { get; set; } = null!;
-
-    public string Email { get; set; } = null!;
-
-    public string PasswordHash { get; set; } = null!;
-
     public IList<Workspace>? Workspaces { get; set; } = null!;
 
     public List<ATask>? CreatedTasks { get; set; } = null!;
 
     public List<ATask>? AssignedTasks { get; set; } = null!;
-
 }

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ScrumBoardAPI.Configuration;
 using ScrumBoardAPI.Contracts;
@@ -15,6 +16,10 @@ var connString = builder.Configuration.GetConnectionString("ScrumBoardAPIDbServe
 builder.Services.AddDbContext<ScrumBoardDbContext>(options => {
     options.UseNpgsql(connString);
 });
+
+builder.Services.AddIdentityCore<AUser>()
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ScrumBoardDbContext>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

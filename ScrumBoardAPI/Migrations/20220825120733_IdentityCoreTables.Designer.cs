@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ScrumBoardAPI.Data;
@@ -11,9 +12,10 @@ using ScrumBoardAPI.Data;
 namespace ScrumBoardAPI.Migrations
 {
     [DbContext(typeof(ScrumBoardDbContext))]
-    partial class ScrumBoardDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220825120733_IdentityCoreTables")]
+    partial class IdentityCoreTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +36,14 @@ namespace ScrumBoardAPI.Migrations
 
                     b.HasIndex("WorkspacesId");
 
-                    b.ToTable("AUserWorkspace");
+                    b.ToTable("WorkspaceUser", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UsersId = "1",
+                            WorkspacesId = 1
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -61,22 +70,6 @@ namespace ScrumBoardAPI.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "1",
-                            ConcurrencyStamp = "77fa5e58-7ef2-4346-836e-3c357e8c00dc",
-                            Name = "Administrator",
-                            NormalizedName = "ADMINISTRATOR"
-                        },
-                        new
-                        {
-                            Id = "2",
-                            ConcurrencyStamp = "26be2aaf-e775-471e-8bc6-ac023fe7a759",
-                            Name = "User",
-                            NormalizedName = "USER"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
