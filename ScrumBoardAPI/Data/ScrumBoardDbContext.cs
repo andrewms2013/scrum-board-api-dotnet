@@ -63,8 +63,8 @@ public class ScrumBoardDbContext: DbContext
             }
         );
 
-        modelBuilder.Entity<Task>().HasData(
-            new Task
+        modelBuilder.Entity<ATask>().HasData(
+            new ATask
             {
                 Id = 1,
                 Name = "Task 1",
@@ -74,7 +74,7 @@ public class ScrumBoardDbContext: DbContext
                 WorkspaceId = 1,
                 Priority = "High"
             },
-            new Task
+            new ATask
             {
                 Id = 2,
                 Name = "Task 2",
@@ -87,6 +87,10 @@ public class ScrumBoardDbContext: DbContext
         );
     }
 
-    public DbSet<ScrumBoardAPI.Data.AUser>? AUser { get; set; }
+    public DbSet<AUser>? AUser { get; set; }
+
+    public DbSet<ATask>? ATask { get; set; }
+
+    public DbSet<Workspace>? Workspace { get; set; }
 
 }

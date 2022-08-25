@@ -15,8 +15,8 @@ public class AUser
 
     public IList<Workspace>? Workspaces { get; set; } = null!;
 
-    public List<Task>? CreatedTasks { get; set; } = null!;
+    public List<ATask>? CreatedTasks { get; set; } = null!;
 
-    public List<Task>? AssignedTasks { get; set; } = null!;
+    public List<ATask>? AssignedTasks { get; set; } = null!;
 
 }

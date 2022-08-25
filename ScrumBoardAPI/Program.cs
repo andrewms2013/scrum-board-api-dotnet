@@ -1,7 +1,9 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using ScrumBoardAPI.Configuration;
+using ScrumBoardAPI.Contracts;
 using ScrumBoardAPI.Data;
+using ScrumBoardAPI.Repository;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +38,9 @@ builder.Host.UseSerilog((hostingContext, loggerConfiguration) => {
 });
 
 builder.Services.AddAutoMapper(typeof(MapperConfig));
+
+builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
+builder.Services.AddScoped(typeof(IUserRepostory), typeof(UserRepository));
 
 var app = builder.Build();
 

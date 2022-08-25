@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ScrumBoardAPI.Data;
@@ -15,12 +10,13 @@ namespace ScrumBoardAPI.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly ScrumBoardDbContext _context;
+        private readonly IUserRepostory _userRepository;
         private readonly IMapper _mapper;
 
-        public UserController(ScrumBoardDbContext context, IMapper mapper)
+
+        public UserController(IUserRepostory userRepository, IMapper mapper)
         {
-            _context = context;
+            _userRepository = userRepository;
             _mapper = mapper;
         }
 
@@ -28,11 +24,7 @@ namespace ScrumBoardAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetUserDto>>> GetAUser()
         {
-            if (_context.AUser == null)
-            {
-                return NotFound();
-            }
-            var users = await _context.AUser.ToListAsync();
+            var users = await _userRepository.GetAllAsync();
             return _mapper.Map<List<GetUserDto>>(users);
         }
 
@@ -40,11 +32,7 @@ namespace ScrumBoardAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<GetUserDto>> GetAUser(string id)
         {
-            if (_context.AUser == null)
-            {
-                return NotFound();
-            }
-            var aUser = await _context.AUser.FindAsync(id);
+            var aUser = await _userRepository.GetAsync(id);
 
             if (aUser == null)
             {
@@ -57,22 +45,28 @@ namespace ScrumBoardAPI.Controllers
         // PUT: api/User/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAUser(string id, AUser aUser)
+        public async Task<IActionResult> PutAUser(string id, UpdateUserDto userDto)
         {
-            if (id != aUser.Id)
+            if (id != userDto.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(aUser).State = EntityState.Modified;
+            var user = await _userRepository.GetAsync(id);
+
+            if (user is null) {
+                return NotFound();
+            }
+
+            _mapper.Map(userDto, user);
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _userRepository.UpdateAsync(user);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!AUserExists(id))
+                if (!await AUserExistsAsync(id))
                 {
                     return NotFound();
                 }
@@ -90,21 +84,15 @@ namespace ScrumBoardAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<AUser>> PostAUser(CreateUserDto userDto)
         {
-            if (_context.AUser == null)
-            {
-                return Problem("Entity set 'ScrumBoardDbContext.AUser'  is null.");
-            }
-
             var aUser = _mapper.Map<AUser>(userDto);
 
-            _context.AUser.Add(aUser);
             try
             {
-                await _context.SaveChangesAsync();
+                await _userRepository.AddAsync(aUser);
             }
             catch (DbUpdateException)
             {
-                if (AUserExists(aUser.Id))
+                if (await AUserExistsAsync(aUser.Id))
                 {
                     return Conflict();
                 }
@@ -121,25 +109,20 @@ namespace ScrumBoardAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAUser(string id)
         {
-            if (_context.AUser == null)
-            {
-                return NotFound();
-            }
-            var aUser = await _context.AUser.FindAsync(id);
+            var aUser = await _userRepository.GetAsync(id);
             if (aUser == null)
             {
                 return NotFound();
             }
 
-            _context.AUser.Remove(aUser);
-            await _context.SaveChangesAsync();
+            await _userRepository.DeleteAsync(id);
 
             return NoContent();
         }
 
-        private bool AUserExists(string id)
+        private async Task<bool> AUserExistsAsync(string id)
         {
-            return (_context.AUser?.Any(e => e.Id == id)).GetValueOrDefault();
+            return await _userRepository.Exists(id);
         }
     }
 }

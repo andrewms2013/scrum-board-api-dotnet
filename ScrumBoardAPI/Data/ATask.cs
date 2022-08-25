@@ -1,6 +1,6 @@
 namespace ScrumBoardAPI.Data;
 
-public class Task
+public class ATask
 {
     public int Id { get; set; }
 
