@@ -35,5 +35,21 @@ namespace ScrumBoardAPI.Controllers
 
             return Ok();
         }
+
+          // POST: api/Auth/login
+        [HttpPost]
+        [Route("login")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> Login([FromBody] LoginDto loginDto) {
+            var isValidUser = await _authManager.Login(loginDto);
+
+            if (!isValidUser) {
+                return Forbid();
+            }
+
+            return Ok();
+        }
     }
 }
