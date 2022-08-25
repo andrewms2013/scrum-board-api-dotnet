@@ -46,6 +46,7 @@ builder.Services.AddAutoMapper(typeof(MapperConfig));
 
 builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
 builder.Services.AddScoped(typeof(IWorkspaceRepository), typeof(WorkspaceRepository));
+builder.Services.AddScoped(typeof(IAuthManager), typeof(AuthManager));
 
 var app = builder.Build();
 
