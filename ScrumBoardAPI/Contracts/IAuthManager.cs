@@ -7,5 +7,5 @@ public interface IAuthManager
 {
     Task<IEnumerable<IdentityError>> Register(CreateUserDto createUserDto);
 
-    Task<bool> Login(LoginDto loginDto);
+    Task<AuthResponceDto?> Login(LoginDto loginDto);
 }

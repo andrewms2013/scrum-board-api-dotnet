@@ -40,16 +40,16 @@ namespace ScrumBoardAPI.Controllers
         [HttpPost]
         [Route("login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> Login([FromBody] LoginDto loginDto) {
-            var isValidUser = await _authManager.Login(loginDto);
+            var authResponce = await _authManager.Login(loginDto);
 
-            if (!isValidUser) {
-                return Forbid();
+            if (authResponce is null) {
+                return Unauthorized();
             }
 
-            return Ok();
+            return Ok(authResponce);
         }
     }
 }
