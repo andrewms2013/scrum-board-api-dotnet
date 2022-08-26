@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ScrumBoardAPI.Data.Configurations;
@@ -15,43 +16,11 @@ public class ScrumBoardDbContext: IdentityDbContext<AUser>
 
         modelBuilder.ApplyConfiguration(new RoleConfiguration());
         modelBuilder.ApplyConfiguration(new UserCofiguration());
-
-
-        // modelBuilder.Entity<Workspace>().HasData(
-        //     new Workspace
-        //     {
-        //         Id = 1,
-        //         Name = "Workspace 1"
-        //     },
-        //     new Workspace
-        //     {
-        //         Id = 2,
-        //         Name = "Workspace 2"
-        //     }
-        // );
-
-        // modelBuilder.Entity<ATask>().HasData(
-        //     new ATask
-        //     {
-        //         Id = 1,
-        //         Name = "Task 1",
-        //         Description = "Task 1 description",
-        //         AssigneeId = "1",
-        //         CreatorId = "1",
-        //         WorkspaceId = 1,
-        //         Priority = "High"
-        //     },
-        //     new ATask
-        //     {
-        //         Id = 2,
-        //         Name = "Task 2",
-        //         Description = "Task 2 description",
-        //         AssigneeId = "1",
-        //         CreatorId = "2",
-        //         WorkspaceId = 1,
-        //         Priority = "Medium"
-        //     }
-        // );
+        modelBuilder.ApplyConfiguration(new WorkspaceCofiguration());
+        modelBuilder.ApplyConfiguration(new TaskConfiguration());
+        modelBuilder.Entity<IdentityUserRole<string>>().HasData(
+            new IdentityUserRole<string>() { RoleId = "1", UserId = "1" }
+        );
     }
 
     public DbSet<ATask>? ATask { get; set; }
