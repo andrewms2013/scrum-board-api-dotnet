@@ -17,11 +17,46 @@ public class AuthManager: IAuthManager
     private readonly IConfiguration _configuration;
     private readonly UserManager<AUser> _userManager;
 
+    private const string _loginProvider = "ScrumBoardAPI";
+
+    private const string _refreshToken = "RefreshToken";
+
     public AuthManager(IMapper mapper, IConfiguration configuration, UserManager<AUser> userManager)
     {
         this._mapper = mapper;
         this._configuration = configuration;
         this._userManager = userManager;
+    }
+
+    public async Task<string> CreateRefreshToken(AUser user)
+    {
+        await _userManager.RemoveAuthenticationTokenAsync(user, _loginProvider, _refreshToken);
+        var newRefreshToken = await _userManager.GenerateUserTokenAsync(user, _loginProvider, _refreshToken);
+        var result = await _userManager.SetAuthenticationTokenAsync(user, _loginProvider, _refreshToken, newRefreshToken);
+
+        return newRefreshToken;
+    }
+
+    public async Task<AuthResponceDto?> VerifyRefreshToken(AuthResponceDto requestDto)
+    {
+        var user = await _userManager.FindByIdAsync(requestDto.UserId);
+
+        if(user is null) {
+            return null;
+        }
+
+        var isValidRefreshToken = await _userManager.VerifyUserTokenAsync(user, _loginProvider, _refreshToken, requestDto.RefreshToken);
+
+        if (isValidRefreshToken) {
+            var token = await GenerateToken(user);
+            var refreshToken = await CreateRefreshToken(user);
+
+            return new AuthResponceDto(user.Id, token, refreshToken);
+        }
+
+        await _userManager.UpdateSecurityStampAsync(user);
+
+        return null;
     }
 
     public async Task<AuthResponceDto?> Login(LoginDto loginDto)
@@ -35,8 +70,9 @@ public class AuthManager: IAuthManager
         }
 
         var token = await GenerateToken(user);
+        var refreshToken = await CreateRefreshToken(user);
 
-        return new AuthResponceDto(user.Id, token);
+        return new AuthResponceDto(user.Id, token, refreshToken);
     }
 
     public async Task<IEnumerable<IdentityError>> Register(CreateUserDto createUserDto)

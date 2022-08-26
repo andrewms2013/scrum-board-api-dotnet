@@ -22,7 +22,9 @@ builder.Services.AddDbContext<ScrumBoardDbContext>(options => {
 
 builder.Services.AddIdentityCore<AUser>()
     .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<ScrumBoardDbContext>();
+    .AddTokenProvider<DataProtectorTokenProvider<AUser>>("ScrumBoardAPI")
+    .AddEntityFrameworkStores<ScrumBoardDbContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
