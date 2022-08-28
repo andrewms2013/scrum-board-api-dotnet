@@ -9,25 +9,15 @@ public class TaskConfiguration : IEntityTypeConfiguration<ATask>
     public void Configure(EntityTypeBuilder<ATask> builder)
     {
         builder.HasData(
-            new ATask
+            new ATask("Task 1", "Task 1 description", "High", 1, "1")
             {
                 Id = 1,
-                Name = "Task 1",
-                Description = "Task 1 description",
                 AssigneeId = "1",
-                CreatorId = "1",
-                WorkspaceId = 1,
-                Priority = "High"
             },
-            new ATask
+            new ATask("Task 2", "Task 2 description", "Medium", 1, "1")
             {
                 Id = 2,
-                Name = "Task 2",
-                Description = "Task 2 description",
                 AssigneeId = "1",
-                CreatorId = "1",
-                WorkspaceId = 1,
-                Priority = "Medium"
             }
         );
     }

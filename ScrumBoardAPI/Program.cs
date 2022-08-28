@@ -7,8 +7,12 @@ using Microsoft.IdentityModel.Tokens;
 using ScrumBoardAPI.Configuration;
 using ScrumBoardAPI.Contracts;
 using ScrumBoardAPI.Data;
+using ScrumBoardAPI.Middleware;
 using ScrumBoardAPI.Repository;
 using Serilog;
+
+// https://stackoverflow.com/questions/36522773/how-to-make-identityserver-to-add-user-identity-to-the-access-token
+System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +23,7 @@ var connString = builder.Configuration.GetConnectionString("ScrumBoardAPIDbServe
 builder.Services.AddDbContext<ScrumBoardDbContext>(options => {
     options.UseNpgsql(connString);
 });
+
 
 builder.Services.AddIdentityCore<AUser>()
     .AddRoles<IdentityRole>()
@@ -63,9 +68,9 @@ builder.Services.AddAuthentication(options => {
         ValidateLifetime = true,
         ValidateAudience = true,
         ClockSkew = TimeSpan.Zero,
-        ValidIssuer = builder.Configuration["JwtSetting:Issuer"],
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
         ValidAudience = builder.Configuration["JwtSettings:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSetting:Key"]))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
     };
 });
 
@@ -78,12 +83,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionMiddleware>();
+
 app.UseHttpsRedirection();
 
 app.UseSerilogRequestLogging();
 
 app.UseCors("AllowAll");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

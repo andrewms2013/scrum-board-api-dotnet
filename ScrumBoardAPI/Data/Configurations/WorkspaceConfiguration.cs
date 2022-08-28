@@ -9,17 +9,13 @@ public class WorkspaceCofiguration : IEntityTypeConfiguration<Workspace>
     public void Configure(EntityTypeBuilder<Workspace> builder)
     {
         builder.HasData(
-            new Workspace
+            new Workspace("Workspace 1", "1")
             {
-                Id = 1,
-                Name = "Workspace 1",
-                AdminId = "1"
+                Id = 1
             },
-            new Workspace
+            new Workspace("Workspace 2", "1")
             {
-                Id = 2,
-                Name = "Workspace 2",
-                AdminId = "1"
+                Id = 2
             }
         );
 
@@ -29,5 +25,11 @@ public class WorkspaceCofiguration : IEntityTypeConfiguration<Workspace>
                 new { WorkspacesId = 1, UsersId = "1" },
                 new { WorkspacesId = 2, UsersId = "1" }
             ));
+
+        builder.HasMany(t => t.Tasks)
+            .WithOne(g => g.Workspace)
+            .HasForeignKey(g => g.WorkspaceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
     }
 }

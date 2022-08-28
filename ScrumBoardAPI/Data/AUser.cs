@@ -4,11 +4,39 @@ namespace ScrumBoardAPI.Data;
 
 public class AUser : IdentityUser
 {
-    public IList<Workspace>? Workspaces { get; set; } = null!;
+    private IList<Workspace>? _workspaces;
 
-    public IList<Workspace>? AdministratedWorkspaces { get; set; } = null!;
+    public IList<Workspace> Workspaces
+    {
+        set => _workspaces = value;
+        get => _workspaces
+            ?? throw new InvalidOperationException("Uninitialized property: " + nameof(Workspaces));
+    }
 
-    public List<ATask>? CreatedTasks { get; set; } = null!;
+    private IList<Workspace>? _administratedWorkspaces;
 
-    public List<ATask>? AssignedTasks { get; set; } = null!;
+    public IList<Workspace> AdministratedWorkspaces
+    {
+        set => _administratedWorkspaces = value;
+        get => _administratedWorkspaces
+            ?? throw new InvalidOperationException("Uninitialized property: " + nameof(AdministratedWorkspaces));
+    }
+
+    private IList<ATask>? _createdTasks;
+
+    public IList<ATask> CreatedTasks
+    {
+        set => _createdTasks = value;
+        get => _createdTasks
+            ?? throw new InvalidOperationException("Uninitialized property: " + nameof(CreatedTasks));
+    }
+
+    private IList<ATask>? _assignedTasks;
+
+    public IList<ATask> AssignedTasks
+    {
+        set => _assignedTasks = value;
+        get => _assignedTasks
+            ?? throw new InvalidOperationException("Uninitialized property: " + nameof(AssignedTasks));
+    }
 }

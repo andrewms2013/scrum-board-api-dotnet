@@ -9,10 +9,26 @@ public class MapperConfig : Profile
 {
     public MapperConfig()
     {
-        CreateMap<Workspace, CreateWorkspaceDto>().ReverseMap();
-        CreateMap<Workspace, GetWorkspaceDto>().ReverseMap();
-        CreateMap<Workspace, UpdateWorkspaceDto>().ReverseMap();
+        CreateMap<Workspace, GetWorkspaceDto>()
+            .ForCtorParam("name", opt => opt.MapFrom(src => src.Name));
 
-        CreateMap<CreateUserDto, AUser>().ReverseMap();
+        CreateMap<Workspace, GetWorkspaceDetailsDto>()
+            .ForCtorParam("name", opt => opt.MapFrom(src => src.Name))
+            .ForCtorParam("tasks", opt => opt.MapFrom(src => src.Tasks))
+            .ForCtorParam("users", opt => opt.MapFrom(src => src.Users))
+            .ForCtorParam("admin", opt => opt.MapFrom(src => src.Admin));
+
+        CreateMap<CreateUserDto, AUser>();
+
+        CreateMap<AUser, GetUserDto>()
+            .ForCtorParam("userId", opt => opt.MapFrom(src => src.Id))
+            .ForCtorParam("userName", opt => opt.MapFrom(src => src.UserName))
+            .ForCtorParam("email", opt => opt.MapFrom(src => src.Email));
+
+        CreateMap<ATask, GetTaskDto>()
+            .ForCtorParam("name", opt => opt.MapFrom(src => src.Name))
+            .ForCtorParam("description", opt => opt.MapFrom(src => src.Description))
+            .ForCtorParam("priority", opt => opt.MapFrom(src => src.Priority))
+            .ForCtorParam("workspaceId", opt => opt.MapFrom(src => src.WorkspaceId));
     }
 }

@@ -23,8 +23,8 @@ public class ScrumBoardDbContext: IdentityDbContext<AUser>
         );
     }
 
-    public DbSet<ATask>? ATask { get; set; }
+    public DbSet<ATask> ATask => Set<ATask>();
 
-    public DbSet<Workspace>? Workspace { get; set; }
+    public DbSet<Workspace> Workspace => Set<Workspace>();
 
 }

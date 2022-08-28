@@ -6,7 +6,7 @@ namespace ScrumBoardAPI.Repository;
 
 public class GenericRepository<T, K> : IGenericRepository<T, K> where T : class
 {
-    private readonly ScrumBoardDbContext _dbContext;
+    protected readonly ScrumBoardDbContext _dbContext;
 
     public GenericRepository(ScrumBoardDbContext dbContext)
     {

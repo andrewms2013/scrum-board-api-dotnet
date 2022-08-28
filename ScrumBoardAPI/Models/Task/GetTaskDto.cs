@@ -1,34 +1,23 @@
+using ScrumBoardAPI.Models.User;
+
 namespace ScrumBoardAPI.Data;
 
-public class ATask
+public class GetTaskDto
 {
     public int Id { get; set; }
 
     public int WorkspaceId { get; set; }
 
-    private Workspace? _workspace;
+    private GetUserDto? _creator;
 
-    public Workspace Workspace
-    {
-        set => _workspace = value;
-        get => _workspace
-            ?? throw new InvalidOperationException("Uninitialized property: " + nameof(Workspace));
-    }
-
-    public string CreatorId { get; set; }
-
-    private AUser? _creator;
-
-    public AUser Creator
+    public GetUserDto Creator
     {
         set => _creator = value;
         get => _creator
             ?? throw new InvalidOperationException("Uninitialized property: " + nameof(Creator));
     }
 
-    public string? AssigneeId { get; set; }
-
-    public AUser? Assignee { get; set; }
+    public GetUserDto? Assignee { get; set; }
 
     public string Name { get; set; }
 
@@ -36,18 +25,16 @@ public class ATask
 
     public string Priority { get; set; }
 
-    public ATask(
+    public GetTaskDto(
         string name,
         string description,
         string priority,
-        int workspaceId,
-        string creatorId
+        int workspaceId
     )
     {
         Name = name;
         Description = description;
         Priority = priority;
         WorkspaceId = workspaceId;
-        CreatorId = creatorId;
     }
 }
