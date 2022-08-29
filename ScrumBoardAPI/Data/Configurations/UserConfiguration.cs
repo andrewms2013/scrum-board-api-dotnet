@@ -30,10 +30,11 @@ public class UserCofiguration : IEntityTypeConfiguration<AUser>
             NormalizedUserName = "ADMIN",
             Email = "admin@admin.com",
             NormalizedEmail = "ADMIN@ADMIN.COM",
+            ConcurrencyStamp = "6e743e0c-96e7-4dce-a3fa-b5cefe2501d0",
+            //P@ssw0rd
+            PasswordHash = "AQAAAAEAACcQAAAAEJ8CkPskOQQUVMsWC4NgvCwi8YejKw25/cm/CuTQo/ji/yv3GniXVNSEA27c7Ab2QQ==",
+            SecurityStamp = "f02e6368-af8a-4a09-bbd8-db5ed40749b5"
         };
-
-        PasswordHasher<AUser> ph = new PasswordHasher<AUser>();
-        adminUser.PasswordHash = ph.HashPassword(adminUser, "P@ssw0rd");
 
         builder.HasData(adminUser);
     }

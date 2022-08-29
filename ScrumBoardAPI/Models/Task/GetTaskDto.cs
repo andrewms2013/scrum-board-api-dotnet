@@ -1,12 +1,11 @@
+using ScrumBoardAPI.Models.Enums;
 using ScrumBoardAPI.Models.User;
 
 namespace ScrumBoardAPI.Data;
 
-public class GetTaskDto
+public class GetTaskDto: BaseTaskDto
 {
     public int Id { get; set; }
-
-    public int WorkspaceId { get; set; }
 
     private GetUserDto? _creator;
 
@@ -19,22 +18,12 @@ public class GetTaskDto
 
     public GetUserDto? Assignee { get; set; }
 
-    public string Name { get; set; }
-
-    public string Description { get; set; }
-
-    public string Priority { get; set; }
-
     public GetTaskDto(
         string name,
         string description,
-        string priority,
-        int workspaceId
-    )
-    {
-        Name = name;
-        Description = description;
-        Priority = priority;
-        WorkspaceId = workspaceId;
-    }
+        ATaskPriority priority,
+        int workspaceId,
+        ATaskStatus status,
+        string creatorId
+    ): base(name, description, priority, workspaceId, status, creatorId) {}
 }

@@ -7,7 +7,9 @@ public interface IWorkspaceRepository : IGenericRepository<Workspace, int> {
 
     Task<Workspace?> GetWorkspaceWithDetails(int workspaceId);
 
-    Task<bool> CanUserAccessWorkspace(string userId, int workspaceId);
+    Task<Workspace> CreateWorkspace(string name, string userId);
 
-    Task<bool> IsUserWorkspaceAdmin(string userId, int workspaceId);
+    Task AddUserToWorkspace(int workspaceId, string userName);
+
+    Task RemoveUserFromWorkspace(int workspaceId, string userName);
 }

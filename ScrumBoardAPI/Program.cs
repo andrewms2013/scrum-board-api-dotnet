@@ -56,6 +56,8 @@ builder.Services.AddAutoMapper(typeof(MapperConfig));
 
 builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
 builder.Services.AddScoped(typeof(IWorkspaceRepository), typeof(WorkspaceRepository));
+builder.Services.AddScoped(typeof(ITaskRepository), typeof(TaskRepository));
+builder.Services.AddScoped(typeof(IUserRepository), typeof(UserRepository));
 builder.Services.AddScoped(typeof(IAuthManager), typeof(AuthManager));
 
 builder.Services.AddAuthentication(options => {

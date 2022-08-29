@@ -1,3 +1,5 @@
+using ScrumBoardAPI.Models.Enums;
+
 namespace ScrumBoardAPI.Data;
 
 public class ATask
@@ -34,14 +36,17 @@ public class ATask
 
     public string Description { get; set; }
 
-    public string Priority { get; set; }
+    public ATaskPriority Priority { get; set; }
+
+    public ATaskStatus Status { get; set; }
 
     public ATask(
         string name,
         string description,
-        string priority,
+        ATaskPriority priority,
         int workspaceId,
-        string creatorId
+        string creatorId,
+        ATaskStatus status
     )
     {
         Name = name;
@@ -49,5 +54,6 @@ public class ATask
         Priority = priority;
         WorkspaceId = workspaceId;
         CreatorId = creatorId;
+        Status = status;
     }
 }

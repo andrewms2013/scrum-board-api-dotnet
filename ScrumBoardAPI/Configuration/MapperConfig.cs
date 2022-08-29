@@ -1,5 +1,6 @@
 using AutoMapper;
 using ScrumBoardAPI.Data;
+using ScrumBoardAPI.Models.Task;
 using ScrumBoardAPI.Models.User;
 using ScrumBoardAPI.Models.Workspace;
 
@@ -29,6 +30,19 @@ public class MapperConfig : Profile
             .ForCtorParam("name", opt => opt.MapFrom(src => src.Name))
             .ForCtorParam("description", opt => opt.MapFrom(src => src.Description))
             .ForCtorParam("priority", opt => opt.MapFrom(src => src.Priority))
-            .ForCtorParam("workspaceId", opt => opt.MapFrom(src => src.WorkspaceId));
+            .ForCtorParam("workspaceId", opt => opt.MapFrom(src => src.WorkspaceId))
+            .ForCtorParam("status", opt => opt.MapFrom(src => src.Status))
+            .ForCtorParam("creatorId", opt => opt.MapFrom(src => src.CreatorId));
+
+        CreateMap<CreateTaskDto, ATask>()
+            .ForCtorParam("name", opt => opt.MapFrom(src => src.Name))
+            .ForCtorParam("description", opt => opt.MapFrom(src => src.Description))
+            .ForCtorParam("priority", opt => opt.MapFrom(src => src.Priority))
+            .ForCtorParam("workspaceId", opt => opt.MapFrom(src => src.WorkspaceId))
+            .ForCtorParam("status", opt => opt.MapFrom(src => src.Status))
+            .ForCtorParam("creatorId", opt => opt.MapFrom(src => src.CreatorId));
+
+        CreateMap<PutTaskDto, ATask>()
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
     }
 }

@@ -1,14 +1,29 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ScrumBoardAPI.Data;
+using ScrumBoardAPI.Exceptions;
 
 namespace ScrumBoardAPI.Repository;
 
 public class WorkspaceRepository : GenericRepository<Workspace, int>, IWorkspaceRepository
 {
-    public WorkspaceRepository(ScrumBoardDbContext dbContext) : base(dbContext)
+    private readonly UserManager<AUser> _userManager;
+
+    public WorkspaceRepository(ScrumBoardDbContext dbContext, UserManager<AUser> userManager) : base(dbContext)
     {
+        _userManager = userManager;
     }
 
+
+    public async Task<Workspace> CreateWorkspace(string name, string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        var workspace = new Workspace(name, userId);
+        workspace.Users = new List<AUser> {user};
+
+        return await AddAsync(workspace);
+    }
 
     public async Task<IList<Workspace>?> GetWorkspacesByUserId(string id)
     {
@@ -29,33 +44,49 @@ public class WorkspaceRepository : GenericRepository<Workspace, int>, IWorkspace
             .Include(w => w.Users)
             .SingleOrDefaultAsync();
 
+
         return workspace;
     }
 
-    public async Task<bool> CanUserAccessWorkspace(string userId, int workspaceId)
+    public async Task AddUserToWorkspace(int workspaceId, string userName)
     {
-        var user = await _dbContext.Users
-            .Where(x => x.Id == userId)
-            .Include(u => u.Workspaces)
-            .SingleOrDefaultAsync();
+        var workspace = await GetWorkspaceWithDetails(workspaceId);
 
-        if (user is null) {
-            return false;
+        if (workspace == null)
+        {
+            throw new NotFoundException("Workspace was not found");
         }
 
-        return user.Workspaces.Any(workspace => workspaceId == workspace.Id);
+        var user = await _userManager.FindByNameAsync(userName);
+
+        if (user == null)
+        {
+            throw new NotFoundException("User was not found");
+        }
+
+        workspace.Users.Add(user);
+
+        await UpdateAsync(workspace);
     }
 
-    public async Task<bool> IsUserWorkspaceAdmin(string userId, int workspaceId)
+    public async Task RemoveUserFromWorkspace(int workspaceId, string userName)
     {
-        var workspace = await _dbContext.Workspace
-            .Where(x => x.Id == workspaceId)
-            .SingleOrDefaultAsync();
+        var workspace = await GetWorkspaceWithDetails(workspaceId);
 
-        if (workspace is null) {
-            return false;
+        if (workspace == null)
+        {
+            throw new NotFoundException("Workspace was not found");
         }
 
-        return workspace.AdminId == userId;
+        var user = await _userManager.FindByNameAsync(userName);
+
+        if (user == null)
+        {
+            throw new NotFoundException("User was not found");
+        }
+
+        workspace.Users.Remove(user);
+
+        await UpdateAsync(workspace);
     }
 }

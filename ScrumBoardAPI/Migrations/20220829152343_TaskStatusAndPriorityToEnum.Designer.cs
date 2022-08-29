@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ScrumBoardAPI.Data;
@@ -11,9 +12,10 @@ using ScrumBoardAPI.Data;
 namespace ScrumBoardAPI.Migrations
 {
     [DbContext(typeof(ScrumBoardDbContext))]
-    partial class ScrumBoardDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220829152343_TaskStatusAndPriorityToEnum")]
+    partial class TaskStatusAndPriorityToEnum
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

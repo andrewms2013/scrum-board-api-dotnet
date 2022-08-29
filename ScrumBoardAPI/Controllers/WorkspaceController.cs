@@ -1,9 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ScrumBoardAPI.Data;
 using ScrumBoardAPI.Models.Workspace;
 
 namespace ScrumBoardAPI.Controllers
@@ -15,14 +13,13 @@ namespace ScrumBoardAPI.Controllers
     {
         private readonly IWorkspaceRepository _workspaceRepository;
         private readonly IMapper _autoMapper;
+        private readonly IUserRepository _userRepository;
 
-        private readonly UserManager<AUser> _userManager;
-
-        public WorkspaceController(IWorkspaceRepository workspaceRepository, IMapper autoMapper, UserManager<AUser> userManager)
+        public WorkspaceController(IWorkspaceRepository workspaceRepository, IUserRepository userRepository, IMapper autoMapper)
         {
             this._workspaceRepository = workspaceRepository;
             this._autoMapper = autoMapper;
-            this._userManager = userManager;
+            this._userRepository = userRepository;
         }
 
         // GET: api/Workspace
@@ -46,7 +43,7 @@ namespace ScrumBoardAPI.Controllers
         {
             var userId = GetUserId();
 
-            var canUserAccessWorkspace = await _workspaceRepository.CanUserAccessWorkspace(userId, id);
+            var canUserAccessWorkspace = await _userRepository.CanUserAccessWorkspace(userId, id);
 
             if (!canUserAccessWorkspace) {
                 return Forbid();
@@ -59,9 +56,7 @@ namespace ScrumBoardAPI.Controllers
                 return NotFound();
             }
 
-            var mapped = _autoMapper.Map<GetWorkspaceDetailsDto>(workspace);
-
-            return mapped;
+            return _autoMapper.Map<GetWorkspaceDetailsDto>(workspace);
         }
 
         // PUT: api/Workspace/5
@@ -71,7 +66,7 @@ namespace ScrumBoardAPI.Controllers
         {
             var userId = GetUserId();
 
-            var isWorkspaceAdmin = await _workspaceRepository.IsUserWorkspaceAdmin(userId, id);
+            var isWorkspaceAdmin = await _userRepository.IsUserWorkspaceAdmin(userId, id);
 
             if (!isWorkspaceAdmin) {
                 return Forbid();
@@ -112,31 +107,15 @@ namespace ScrumBoardAPI.Controllers
         {
             var userId = GetUserId();
 
-            var isWorkspaceAdmin = await _workspaceRepository.IsUserWorkspaceAdmin(userId, id);
+            var isWorkspaceAdmin = await _userRepository.IsUserWorkspaceAdmin(userId, id);
 
             if (!isWorkspaceAdmin) {
                 return Forbid();
             }
 
-            var workspace = await _workspaceRepository.GetWorkspaceWithDetails(id);
-
-            if (workspace == null)
-            {
-                return NotFound("Workspace was not found");
-            }
-
-            var user = await _userManager.FindByNameAsync(userName);
-
-            if (user == null)
-            {
-                return NotFound("User was not found");
-            }
-
-            workspace.Users.Add(user);
-
             try
             {
-                await _workspaceRepository.UpdateAsync(workspace);
+                await _workspaceRepository.AddUserToWorkspace(id, userName);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -154,35 +133,19 @@ namespace ScrumBoardAPI.Controllers
         }
 
         [HttpPut("{id}/RemoveUser")]
-        public async Task<IActionResult> RemovUserFromWorkspace(int id, string userName)
+        public async Task<IActionResult> RemoveUserFromWorkspace(int id, string userName)
         {
             var userId = GetUserId();
 
-            var isWorkspaceAdmin = await _workspaceRepository.IsUserWorkspaceAdmin(userId, id);
+            var isWorkspaceAdmin = await _userRepository.IsUserWorkspaceAdmin(userId, id);
 
             if (!isWorkspaceAdmin) {
                 return Forbid();
             }
 
-            var workspace = await _workspaceRepository.GetWorkspaceWithDetails(id);
-
-            if (workspace == null)
-            {
-                return NotFound("Workspace was not found");
-            }
-
-            var user = await _userManager.FindByNameAsync(userName);
-
-            if (user == null)
-            {
-                return NotFound("User was not found");
-            }
-
-            workspace.Users.Remove(user);
-
             try
             {
-                await _workspaceRepository.UpdateAsync(workspace);
+                await _workspaceRepository.RemoveUserFromWorkspace(id, userName);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -204,13 +167,8 @@ namespace ScrumBoardAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<GetWorkspaceDto>> PostWorkspace(string name)
         {
-            var userId = GetUserId();
-            var user = await _userManager.FindByIdAsync(userId);
-
-            var workspace = new Workspace(name, userId);
-            workspace.Users = new List<AUser> {user};
-
-            await _workspaceRepository.AddAsync(workspace);
+            var creatorId = GetUserId();
+            var workspace = await _workspaceRepository.CreateWorkspace(name, creatorId);
             return CreatedAtAction("GetWorkspace", new { id = workspace.Id }, _autoMapper.Map<GetWorkspaceDto>(workspace));
         }
 
@@ -220,7 +178,7 @@ namespace ScrumBoardAPI.Controllers
         {
             var userId = GetUserId();
 
-            var isWorkspaceAdmin = await _workspaceRepository.IsUserWorkspaceAdmin(userId, id);
+            var isWorkspaceAdmin = await _userRepository.IsUserWorkspaceAdmin(userId, id);
 
             if (!isWorkspaceAdmin) {
                 return Forbid();

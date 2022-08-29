@@ -52,7 +52,6 @@ internal class ErrorDetails
 {
     public string ErrorType { get; set; }
 
-
     public string ErrorMessage { get; set; }
 
     public ErrorDetails(string errorType, string errorMessage)
