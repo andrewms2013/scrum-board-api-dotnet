@@ -1,16 +1,20 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using ScrumBoardAPI.Contracts;
 using ScrumBoardAPI.Data;
+using ScrumBoardAPI.Models.Paging;
 
 namespace ScrumBoardAPI.Repository;
 
 public class GenericRepository<T, K> : IGenericRepository<T, K> where T : class
 {
     protected readonly ScrumBoardDbContext _dbContext;
+    protected readonly IMapper _autoMapper;
 
-    public GenericRepository(ScrumBoardDbContext dbContext)
+    public GenericRepository(ScrumBoardDbContext dbContext, IMapper autoMapper)
     {
         _dbContext = dbContext;
+        _autoMapper = autoMapper;
     }
 
     public async Task<T> AddAsync(T entity)
@@ -41,6 +45,20 @@ public class GenericRepository<T, K> : IGenericRepository<T, K> where T : class
     public async Task<List<T>> GetAllAsync()
     {
         return await _dbContext.Set<T>().ToListAsync();
+    }
+
+    public async Task<PagedResult<ResultType>> GetAllAsync<ResultType>(QueryParameters parameters)
+    {
+        var totalSize = _dbContext.Set<T>().Count();
+        var query = _dbContext.Set<T>()
+            .Skip(parameters.PageNumber * parameters.PageSize)
+            .Take(parameters.PageSize);
+        var items = await _autoMapper.ProjectTo<ResultType>(query).ToListAsync();
+
+        return new PagedResult<ResultType> {
+            Items = items,
+            TotalCount = totalSize
+        };
     }
 
     public async Task<T?> GetAsync(K? id)

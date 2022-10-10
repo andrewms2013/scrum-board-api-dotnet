@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ScrumBoardAPI.Models.Paging;
 using ScrumBoardAPI.Models.Workspace;
 
 namespace ScrumBoardAPI.Controllers
@@ -22,8 +23,8 @@ namespace ScrumBoardAPI.Controllers
             this._userRepository = userRepository;
         }
 
-        // GET: api/Workspace
-        [HttpGet]
+        // GET: api/Workspace/GetAll
+        [HttpGet("GetAll")]
         public async Task<ActionResult<IEnumerable<GetWorkspaceDto>>> GetWorkspace()
         {
             var userId = GetUserId();
@@ -35,6 +36,21 @@ namespace ScrumBoardAPI.Controllers
             }
 
             return _autoMapper.Map<List<GetWorkspaceDto>>(workspaces);
+        }
+
+        // GET: api/Workspace/?PageSize=25&PageNumber=1
+        [HttpGet()]
+        public async Task<ActionResult<PagedResult<GetWorkspaceDetailsDto>>> GetPagedWorkspaces([FromQuery] QueryParameters queryParameters)
+        {
+            var userId = GetUserId();
+            var workspaces = await _workspaceRepository.GetWorkspacesByUserId(userId);
+
+            if (workspaces is null)
+            {
+                return NotFound();
+            }
+
+            return await _workspaceRepository.GetAllAsync<GetWorkspaceDetailsDto>(queryParameters);
         }
 
         // GET: api/Workspace/5

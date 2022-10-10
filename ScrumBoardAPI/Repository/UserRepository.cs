@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using ScrumBoardAPI.Data;
 
@@ -5,7 +6,7 @@ namespace ScrumBoardAPI.Repository;
 
 public class UserRepository : GenericRepository<AUser, string>, IUserRepository
 {
-    public UserRepository(ScrumBoardDbContext dbContext) : base(dbContext)
+    public UserRepository(ScrumBoardDbContext dbContext, IMapper autoMapper) : base(dbContext, autoMapper)
     {
     }
 

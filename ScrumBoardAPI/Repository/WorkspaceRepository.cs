@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ScrumBoardAPI.Data;
@@ -9,7 +10,7 @@ public class WorkspaceRepository : GenericRepository<Workspace, int>, IWorkspace
 {
     private readonly UserManager<AUser> _userManager;
 
-    public WorkspaceRepository(ScrumBoardDbContext dbContext, UserManager<AUser> userManager) : base(dbContext)
+    public WorkspaceRepository(ScrumBoardDbContext dbContext, UserManager<AUser> userManager, IMapper autoMapper) : base(dbContext, autoMapper)
     {
         _userManager = userManager;
     }
