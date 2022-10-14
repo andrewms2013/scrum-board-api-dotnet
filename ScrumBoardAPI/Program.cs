@@ -3,13 +3,14 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using ScrumBoardAPI.Configuration;
-using ScrumBoardAPI.Contracts;
+using ScrumBoardAPI.Core.Configuration;
+using ScrumBoardAPI.Core.Contracts;
 using ScrumBoardAPI.Data;
-using ScrumBoardAPI.Middleware;
-using ScrumBoardAPI.Repository;
+using ScrumBoardAPI.Core.Middleware;
+using ScrumBoardAPI.Core.Repository;
 using Serilog;
 
 // https://stackoverflow.com/questions/36522773/how-to-make-identityserver-to-add-user-identity-to-the-access-token
@@ -42,7 +43,6 @@ builder.Services.AddIdentityCore<AUser>()
     .AddEntityFrameworkStores<ScrumBoardDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -91,6 +91,10 @@ builder.Services.AddResponseCaching(options =>
 {
     options.MaximumBodySize = 1024;
     options.UseCaseSensitivePaths = true;
+});
+
+builder.Services.AddControllers().AddOData(options => {
+    options.Select().Filter().OrderBy();
 });
 
 var app = builder.Build();

@@ -1,6 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Mvc;
-using ScrumBoardAPI.Exceptions;
+using ScrumBoardAPI.Core.Exceptions;
 
 public abstract class BaseApplicationController : ControllerBase
 {

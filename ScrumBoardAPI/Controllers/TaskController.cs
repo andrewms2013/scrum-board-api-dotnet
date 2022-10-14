@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ScrumBoardAPI.Data;
-using ScrumBoardAPI.Models.Task;
+using ScrumBoardAPI.Core.Models.Task;
 
 namespace ScrumBoardAPI.Controllers
 {

@@ -1,9 +1,10 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using Microsoft.EntityFrameworkCore;
-using ScrumBoardAPI.Models.Paging;
-using ScrumBoardAPI.Models.Workspace;
+using ScrumBoardAPI.Core.Models.Paging;
+using ScrumBoardAPI.Core.Models.Workspace;
 
 namespace ScrumBoardAPI.Controllers
 {
@@ -23,8 +24,9 @@ namespace ScrumBoardAPI.Controllers
             this._userRepository = userRepository;
         }
 
-        // GET: api/Workspace/GetAll
-        [HttpGet("GetAll")]
+        // GET: api/Workspace/OData
+        [HttpGet("OData")]
+        [EnableQuery]
         public async Task<ActionResult<IEnumerable<GetWorkspaceDto>>> GetWorkspace()
         {
             var userId = GetUserId();

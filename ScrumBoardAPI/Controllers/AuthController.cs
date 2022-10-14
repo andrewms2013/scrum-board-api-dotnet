@@ -1,7 +1,7 @@
 
 using Microsoft.AspNetCore.Mvc;
-using ScrumBoardAPI.Contracts;
-using ScrumBoardAPI.Models.User;
+using ScrumBoardAPI.Core.Contracts;
+using ScrumBoardAPI.Core.Models.User;
 
 namespace ScrumBoardAPI.Controllers
 {
