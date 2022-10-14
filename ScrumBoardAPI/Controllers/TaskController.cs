@@ -2,7 +2,6 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ScrumBoardAPI.Data;
 using ScrumBoardAPI.Core.Models.Task;
 
 namespace ScrumBoardAPI.Controllers
@@ -13,13 +12,11 @@ namespace ScrumBoardAPI.Controllers
     public class TaskController : BaseApplicationController
     {
         private readonly ITaskRepository _taskRepository;
-        private readonly IMapper _autoMapper;
         private readonly IUserRepository _userRepository;
 
         public TaskController(ITaskRepository taskRepository, IUserRepository userRepository, IMapper autoMapper)
         {
             _taskRepository = taskRepository;
-            _autoMapper = autoMapper;
             _userRepository = userRepository;
         }
 
@@ -33,17 +30,9 @@ namespace ScrumBoardAPI.Controllers
                 return BadRequest();
             }
 
-            var task = await _taskRepository.GetAsync(id);
-
-            if (task == null) {
-                return NotFound();
-            }
-
-            _autoMapper.Map(aTaskDto, task);
-
             try
             {
-                await _taskRepository.UpdateAsync(task);
+                await _taskRepository.UpdateAsync(id, aTaskDto);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -77,11 +66,7 @@ namespace ScrumBoardAPI.Controllers
                 return Forbid();
             }
 
-            var task = _autoMapper.Map<ATask>(createTaskDto);
-
-            await _taskRepository.AddAsync(task);
-
-            return Ok(_autoMapper.Map<GetTaskDto>(task));
+            return await _taskRepository.AddAsync<CreateTaskDto, GetTaskDto>(createTaskDto);
         }
 
         // DELETE: api/Task/5
@@ -90,7 +75,7 @@ namespace ScrumBoardAPI.Controllers
         {
             var userId = GetUserId();
 
-            var task = await _taskRepository.GetAsync(id);
+            var task = await _taskRepository.GetAsync<GetTaskDto>(id);
 
             if (task is null) {
                 return NotFound();

@@ -14,13 +14,11 @@ namespace ScrumBoardAPI.Controllers
     public class WorkspaceController : BaseApplicationController
     {
         private readonly IWorkspaceRepository _workspaceRepository;
-        private readonly IMapper _autoMapper;
         private readonly IUserRepository _userRepository;
 
         public WorkspaceController(IWorkspaceRepository workspaceRepository, IUserRepository userRepository, IMapper autoMapper)
         {
             this._workspaceRepository = workspaceRepository;
-            this._autoMapper = autoMapper;
             this._userRepository = userRepository;
         }
 
@@ -30,29 +28,19 @@ namespace ScrumBoardAPI.Controllers
         public async Task<ActionResult<IEnumerable<GetWorkspaceDto>>> GetWorkspace()
         {
             var userId = GetUserId();
-            var workspaces = await _workspaceRepository.GetWorkspacesByUserId(userId);
+            var workspaces = await _workspaceRepository.GetWorkspacesByUserId<GetWorkspaceDto>(userId);
 
-            if (workspaces is null)
-            {
-                return NotFound();
-            }
-
-            return _autoMapper.Map<List<GetWorkspaceDto>>(workspaces);
+            return workspaces;
         }
 
         // GET: api/Workspace/?PageSize=25&PageNumber=1
         [HttpGet()]
-        public async Task<ActionResult<PagedResult<GetWorkspaceDetailsDto>>> GetPagedWorkspaces([FromQuery] QueryParameters queryParameters)
+        public async Task<ActionResult<PagedResult<GetWorkspaceDto>>> GetPagedWorkspaces([FromQuery] QueryParameters queryParameters)
         {
             var userId = GetUserId();
-            var workspaces = await _workspaceRepository.GetWorkspacesByUserId(userId);
+            var workspaces = await _workspaceRepository.GetPagedWorkspacesByUserId<GetWorkspaceDto>(userId, queryParameters);
 
-            if (workspaces is null)
-            {
-                return NotFound();
-            }
-
-            return await _workspaceRepository.GetAllAsync<GetWorkspaceDetailsDto>(queryParameters);
+            return workspaces;
         }
 
         // GET: api/Workspace/5
@@ -67,14 +55,14 @@ namespace ScrumBoardAPI.Controllers
                 return Forbid();
             }
 
-            var workspace = await _workspaceRepository.GetWorkspaceWithDetails(id);
+            var workspace = await _workspaceRepository.GetWorkspaceWithDetails<GetWorkspaceDetailsDto>(id);
 
             if (workspace == null)
             {
                 return NotFound();
             }
 
-            return _autoMapper.Map<GetWorkspaceDetailsDto>(workspace);
+            return workspace;
         }
 
         // PUT: api/Workspace/5
@@ -90,18 +78,9 @@ namespace ScrumBoardAPI.Controllers
                 return Forbid();
             }
 
-            var workspace = await _workspaceRepository.GetAsync(id);
-
-            if (workspace == null)
-            {
-                return NotFound();
-            }
-
-            workspace.Name = newName;
-
             try
             {
-                await _workspaceRepository.UpdateAsync(workspace);
+                await _workspaceRepository.RenameWorkspace(id, newName);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -186,8 +165,8 @@ namespace ScrumBoardAPI.Controllers
         public async Task<ActionResult<GetWorkspaceDto>> PostWorkspace(string name)
         {
             var creatorId = GetUserId();
-            var workspace = await _workspaceRepository.CreateWorkspace(name, creatorId);
-            return CreatedAtAction("GetWorkspace", new { id = workspace.Id }, _autoMapper.Map<GetWorkspaceDto>(workspace));
+            var workspace = await _workspaceRepository.CreateWorkspace<GetWorkspaceDto>(name, creatorId);
+            return CreatedAtAction("GetWorkspace", new { id = workspace.Id }, workspace);
         }
 
         // DELETE: api/Workspace/5
@@ -202,8 +181,9 @@ namespace ScrumBoardAPI.Controllers
                 return Forbid();
             }
 
-            var workspace = await _workspaceRepository.GetAsync(id);
-            if (workspace == null)
+            var workspaceExists = await WorkspaceExistsAsync(id);
+
+            if (!workspaceExists)
             {
                 return NotFound();
             }

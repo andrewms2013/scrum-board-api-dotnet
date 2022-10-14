@@ -5,17 +5,17 @@ namespace ScrumBoardAPI.Core.Contracts;
 public interface IGenericRepository<T, K>
     where T : class
 {
-    Task<T?> GetAsync(K? id);
+    Task<ResultType?> GetAsync<ResultType>(K? id) where ResultType : class;
 
-    Task<List<T>> GetAllAsync();
+    Task<List<ResultType>> GetAllAsync<ResultType>();
 
     Task<PagedResult<ResultType>> GetAllAsync<ResultType>(QueryParameters parameters);
 
-    Task<T> AddAsync(T entity);
+    Task<ResultType> AddAsync<SourceType, ResultType>(SourceType entity);
 
     Task DeleteAsync(K? id);
 
-    Task UpdateAsync(T entity);
+    Task UpdateAsync<SourceType>(K id, SourceType entity);
 
     Task<bool> Exists(K? id);
 }

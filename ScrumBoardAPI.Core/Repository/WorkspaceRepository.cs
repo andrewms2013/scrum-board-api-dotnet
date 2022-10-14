@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ScrumBoardAPI.Data;
 using ScrumBoardAPI.Core.Exceptions;
+using ScrumBoardAPI.Core.Models.Paging;
 
 namespace ScrumBoardAPI.Core.Repository;
 
@@ -15,28 +16,25 @@ public class WorkspaceRepository : GenericRepository<Workspace, int>, IWorkspace
         _userManager = userManager;
     }
 
-
-    public async Task<Workspace> CreateWorkspace(string name, string userId)
+    public async Task<ResultType> CreateWorkspace<ResultType>(string name, string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
 
         var workspace = new Workspace(name, userId);
         workspace.Users = new List<AUser> {user};
 
-        return await AddAsync(workspace);
+        return await AddAsync<Workspace, ResultType>(workspace);
     }
 
-    public async Task<IList<Workspace>?> GetWorkspacesByUserId(string id)
+    public async Task<List<ResultType>> GetWorkspacesByUserId<ResultType>(string id)
     {
-        var user = await _dbContext.Users
-            .Where(x => x.Id == id)
-            .Include(u => u.Workspaces)
-            .SingleOrDefaultAsync();
+        var query = _dbContext.Workspace
+            .Where(x => x.Users.Any(user => user.Id == id));
 
-        return user?.Workspaces ?? new List<Workspace>();
+        return await _autoMapper.ProjectTo<ResultType>(query).ToListAsync();
     }
 
-    public async Task<Workspace?> GetWorkspaceWithDetails(int id)
+    public async Task<ResultType?> GetWorkspaceWithDetails<ResultType>(int id) where ResultType : class
     {
         var workspace = await _dbContext.Workspace
             .Where(x => x.Id == id)
@@ -45,13 +43,16 @@ public class WorkspaceRepository : GenericRepository<Workspace, int>, IWorkspace
             .Include(w => w.Users)
             .SingleOrDefaultAsync();
 
+        if (workspace is null) {
+            return null;
+        }
 
-        return workspace;
+        return _autoMapper.Map<ResultType>(workspace);
     }
 
     public async Task AddUserToWorkspace(int workspaceId, string userName)
     {
-        var workspace = await GetWorkspaceWithDetails(workspaceId);
+        var workspace = await GetWorkspaceWithDetails<Workspace>(workspaceId);
 
         if (workspace == null)
         {
@@ -67,12 +68,12 @@ public class WorkspaceRepository : GenericRepository<Workspace, int>, IWorkspace
 
         workspace.Users.Add(user);
 
-        await UpdateAsync(workspace);
+        await UpdateAsync(workspaceId, workspace);
     }
 
     public async Task RemoveUserFromWorkspace(int workspaceId, string userName)
     {
-        var workspace = await GetWorkspaceWithDetails(workspaceId);
+        var workspace = await GetWorkspaceWithDetails<Workspace>(workspaceId);
 
         if (workspace == null)
         {
@@ -88,6 +89,39 @@ public class WorkspaceRepository : GenericRepository<Workspace, int>, IWorkspace
 
         workspace.Users.Remove(user);
 
-        await UpdateAsync(workspace);
+        await UpdateAsync(workspaceId, workspace);
+    }
+
+    public async Task<PagedResult<ResultType>> GetPagedWorkspacesByUserId<ResultType>(string id, QueryParameters parameters)
+    {
+        var totalSize = _dbContext.Workspace
+            .Where(x => x.Users.Any(user => user.Id == id))
+            .Count();
+
+        var query = _dbContext.Workspace
+            .Where(x => x.Users.Any(user => user.Id == id))
+            .Skip(parameters.PageNumber * parameters.PageSize)
+            .Take(parameters.PageSize);
+
+        var items = await _autoMapper.ProjectTo<ResultType>(query).ToListAsync();
+
+        return new PagedResult<ResultType> {
+            Items = items,
+            TotalCount = totalSize
+        };
+    }
+
+    public async Task RenameWorkspace(int workspaceId, string newName)
+    {
+        var workspace = await GetAsync<Workspace>(workspaceId);
+
+        if (workspace == null)
+        {
+            throw new NotFoundException($"Workspace with id ${workspaceId} was not found");
+        }
+
+        workspace.Name = newName;
+
+        await UpdateAsync(workspaceId, workspace);
     }
 }
